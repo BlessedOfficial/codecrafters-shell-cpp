@@ -17,7 +17,7 @@ int main() {
     }
     else if (input.substr(0, 5) == "echo ")
     {
-      std::cout << input.substr(4) << std::endl;
+      std::cout << input.substr(5) << std::endl;
     }
     else
     {
