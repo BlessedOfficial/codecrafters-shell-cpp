@@ -9,9 +9,12 @@ int main() {
   while (true)
   {
     std::cout << "$ ";
-    std::string cmd;
-    std::cin >> cmd;
+    std::string input;
+    std::cin >> input;
+    if(input =="exit"){
+      break;
+    }
 
-    std::cout << cmd << ": command not found" <<  std::endl;;
+    std::cout << input << ": command not found" <<  std::endl;;
   }
 }
