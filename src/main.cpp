@@ -8,4 +8,9 @@ int main() {
 
   // TODO: Uncomment the code below to pass the first stage
    std::cout << "$ ";
+   std::string cmd;
+   std::cin >> cmd;
+
+   std::cout << $"{cmd}: command not found";
+   
 }
