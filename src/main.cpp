@@ -6,7 +6,7 @@
 
 using namespace std;
 
-inline bool exists_test(const std::string& name);
+
 
 int main()
 {
@@ -62,11 +62,11 @@ int main()
               for (string path : paths)
               {
                 string filepath = path + '/' + command;
-                if (exists_test(filepath))
-                {
-                  cout << command + " is " + filepath <<endl;
-                 
-                }
+                if (access(filepath.c_str(), X_OK) == 0)
+{
+    cout << command << " is " << filepath << endl;
+    break;
+}
               }
 
                 cout << command << ": not found" << endl;
@@ -81,7 +81,3 @@ int main()
     }
 }
 
-inline bool exists_test (const std::string& name) {
-  struct stat buffer;   
-  return (stat (name.c_str(), &buffer) == 0); 
-}
