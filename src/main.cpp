@@ -15,7 +15,7 @@ vector<string> get_path_directories()
 {
     vector<string> paths;
     const char *path_env = getenv("PATH");
-    
+
     if (path_env != nullptr)
     {
         stringstream ss(path_env);
@@ -52,6 +52,7 @@ void handle_type(const string &input, const vector<string> &paths)
 {
     string command = input.substr(5);
 
+    // O(1) lookup Optimisation
     if (BUILTINS.count(command))
     {
         cout << command << " is a shell builtin\n";
@@ -66,6 +67,85 @@ void handle_type(const string &input, const vector<string> &paths)
         else
         {
             cout << command << ": not found\n";
+        }
+    }
+}
+
+void handle_externals(const string &input, const vector<string> &paths)
+{
+    // seperate by space
+    string command;
+    vector<string> args;
+
+    size_t space_pos = input.find(' ');
+
+    if (space_pos != string::npos)
+    {
+        command = input.substr(0, space_pos);
+
+        // args into vector
+        string raw_args = input.substr(space_pos + 1);
+        stringstream ss(raw_args);
+        string arg;
+
+        while (ss >> arg)
+        {
+            args.push_back(arg);
+        }
+    }
+    else
+    {
+        command = input;
+    }
+
+    // Determine if command is executable
+    string filepath = find_in_path(command, paths);
+    if (filepath == "")
+    {
+        cout << command << ": not found\n"
+    }
+    else
+    {
+        // Create a C++ vector to store C-style char pointers
+        vector<char *> argv;
+
+        // 1. argv[0] must be the path/command name
+        argv.push_back(const_cast<char *>(filepath.c_str()));
+
+        // 2. argv[1..n] are the arguments
+        for (const string &arg : args)
+        {
+            argv.push_back(const_cast<char *>(arg.c_str()));
+        }
+
+        // 3. Must end with a NULL sentinel pointer
+        argv.push_back(nullptr);
+
+        // Call fork
+        pid_t pid = fork();
+
+        // Handle Errors
+        if (pid < 0)
+        {
+            perror("fork failed!!") return;
+        }
+
+        // Handle Child Process (pid == 0)
+        if (pid == 0)
+        {
+            exec(filepath.c_str, argv.data());
+
+            // This only executes if execv FAILED!!
+            perror("execv failed");
+            exit("EXIT_FAILURE");
+        }
+
+        // 5. PARENT PROCESS (pid > 0)
+        int status;
+        // waitpid pauses parent until child with this specific PID finishes
+        if (waitpid(pid, &status, 0) == -1)
+        {
+            perror("waitpid failed");
         }
     }
 }
@@ -103,7 +183,7 @@ int main()
         }
         else
         {
-            cout << input << ": command not found\n";
+            handle_externals(input, paths);
         }
     }
 
