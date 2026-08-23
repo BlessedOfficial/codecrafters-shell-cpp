@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_set>
 #include <unistd.h>
+#include <sys/wait.h>
 
 using namespace std;
 
@@ -134,11 +135,11 @@ void handle_externals(const string &input, const vector<string> &paths)
         // Handle Child Process (pid == 0)
         if (pid == 0)
         {
-            execv(filepath.c_str, argv.data());
+            execv(filepath.c_str(), argv.data());
 
             // This only executes if execv FAILED!!
             perror("execv failed");
-            exit("EXIT_FAILURE");
+            exit(EXIT_FAILURE);
         }
 
         // 5. PARENT PROCESS (pid > 0)
