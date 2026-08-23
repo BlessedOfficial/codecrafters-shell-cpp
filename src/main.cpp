@@ -102,7 +102,7 @@ void handle_externals(const string &input, const vector<string> &paths)
     string filepath = find_in_path(command, paths);
     if (filepath == "")
     {
-        cout << command << ": not found\n"
+        cout << command << ": not found\n";
     }
     else
     {
