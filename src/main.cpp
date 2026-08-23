@@ -127,7 +127,8 @@ void handle_externals(const string &input, const vector<string> &paths)
         // Handle Errors
         if (pid < 0)
         {
-            perror("fork failed!!") return;
+            perror("fork failed!!");
+            return;
         }
 
         // Handle Child Process (pid == 0)
