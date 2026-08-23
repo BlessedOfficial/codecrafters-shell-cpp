@@ -134,7 +134,7 @@ void handle_externals(const string &input, const vector<string> &paths)
         // Handle Child Process (pid == 0)
         if (pid == 0)
         {
-            exec(filepath.c_str, argv.data());
+            execv(filepath.c_str, argv.data());
 
             // This only executes if execv FAILED!!
             perror("execv failed");
