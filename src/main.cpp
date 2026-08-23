@@ -111,7 +111,7 @@ void handle_externals(const string &input, const vector<string> &paths)
         vector<char *> argv;
 
         // 1. argv[0] must be the path/command name
-        argv.push_back(const_cast<char *>(filepath.c_str()));
+        argv.push_back(const_cast<char *>(command.c_str()));
 
         // 2. argv[1..n] are the arguments
         for (const string &arg : args)
