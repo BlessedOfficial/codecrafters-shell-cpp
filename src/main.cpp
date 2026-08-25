@@ -49,6 +49,7 @@ void handle_echo(const string &input)
     cout << input.substr(5) << "\n";
 }
 
+//Handle type command
 void handle_type(const string &input, const vector<string> &paths)
 {
     string command = input.substr(5);
@@ -72,6 +73,7 @@ void handle_type(const string &input, const vector<string> &paths)
     }
 }
 
+//Handle externals
 void handle_externals(const string &input, const vector<string> &paths)
 {
     // seperate by space
@@ -152,6 +154,17 @@ void handle_externals(const string &input, const vector<string> &paths)
     }
 }
 
+
+//pwd
+void handle_pwd(){
+    char cwd[1024];
+    if (getcwd(cwd, sizeof(cwd)))
+    {
+        cout<<cwd<<endl;
+    }
+    
+}
+
 int main()
 {
     cout << unitbuf;
@@ -170,6 +183,8 @@ int main()
         if (input == "exit")
         {
             break;
+        }else if(input == "pwd"){
+            handle_pwd();
         }
 
         // Fetch PATH per iteration (accounts for runtime updates)
