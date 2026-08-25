@@ -196,7 +196,7 @@ int main()
 
             if (chdir(path.c_str()) != 0)
             {
-                cerr << "cd: " << path << ": No such file or directory";
+                cerr << "cd: " << path << ": No such file or directory" <<endl;
             }
 
             continue;
