@@ -35,7 +35,7 @@ string get_home_env_var(){
         return string(home_env);
     }
 
-    return ""
+    return "";
 }
 
 // Searches for an executable within PATH directories
