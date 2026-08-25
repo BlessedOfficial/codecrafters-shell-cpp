@@ -9,7 +9,7 @@
 using namespace std;
 
 // Builtin registry for easy lookup
-const unordered_set<string> BUILTINS = {"echo", "exit", "type", "pwd"};
+const unordered_set<string> BUILTINS = {"echo", "exit", "type", "pwd", "cd"};
 
 // Parses the PATH environment variable into discrete directory paths
 vector<string> get_path_directories()
@@ -49,7 +49,7 @@ void handle_echo(const string &input)
     cout << input.substr(5) << "\n";
 }
 
-//Handle type command
+// Handle type command
 void handle_type(const string &input, const vector<string> &paths)
 {
     string command = input.substr(5);
@@ -73,7 +73,7 @@ void handle_type(const string &input, const vector<string> &paths)
     }
 }
 
-//Handle externals
+// Handle externals
 void handle_externals(const string &input, const vector<string> &paths)
 {
     // seperate by space
@@ -154,15 +154,19 @@ void handle_externals(const string &input, const vector<string> &paths)
     }
 }
 
-
-//pwd
-void handle_pwd(){
+// pwd
+void handle_pwd()
+{
     char cwd[1024];
     if (getcwd(cwd, sizeof(cwd)))
     {
-        cout<<cwd<<endl;
+        cout << cwd << endl;
     }
-    
+}
+
+// cd
+void handle_cd(const string &path)
+{
 }
 
 int main()
@@ -183,8 +187,21 @@ int main()
         if (input == "exit")
         {
             break;
-        }else if(input == "pwd"){
+        }
+        else if (input == "pwd")
+        {
             handle_pwd();
+            continue;
+        }
+        else if (input.substr(0, 3) == "cd ")
+        {
+            string path = input.substr(3);
+
+            if (chdir(path.c_str()) != 0)
+            {
+                perror("cd");
+            }
+
             continue;
         }
 
