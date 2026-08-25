@@ -29,6 +29,15 @@ vector<string> get_path_directories()
     return paths;
 }
 
+string get_home_env_var(){
+    const char *home_env = getenv("HOME");
+    if(home_env != nullptr){
+        return string(home_env);
+    }
+
+    return ""
+}
+
 // Searches for an executable within PATH directories
 string find_in_path(const string &command, const vector<string> &paths)
 {
@@ -193,6 +202,10 @@ int main()
         else if (input.substr(0, 3) == "cd ")
         {
             string path = input.substr(3);
+
+            if(path =="~"){
+                path = get_home_env_var();
+            }
 
             if (chdir(path.c_str()) != 0)
             {
