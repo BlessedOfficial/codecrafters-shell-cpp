@@ -9,7 +9,7 @@
 using namespace std;
 
 // Builtin registry for easy lookup
-const unordered_set<string> BUILTINS = {"echo", "exit", "type"};
+const unordered_set<string> BUILTINS = {"echo", "exit", "type", "pwd"};
 
 // Parses the PATH environment variable into discrete directory paths
 vector<string> get_path_directories()
@@ -185,6 +185,7 @@ int main()
             break;
         }else if(input == "pwd"){
             handle_pwd();
+            continue;
         }
 
         // Fetch PATH per iteration (accounts for runtime updates)
