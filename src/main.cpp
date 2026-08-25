@@ -164,10 +164,7 @@ void handle_pwd()
     }
 }
 
-// cd
-void handle_cd(const string &path)
-{
-}
+
 
 int main()
 {
@@ -199,7 +196,7 @@ int main()
 
             if (chdir(path.c_str()) != 0)
             {
-                perror("cd");
+                cerr << "cd: " << path << ": No such file or directory";
             }
 
             continue;
