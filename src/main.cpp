@@ -55,7 +55,17 @@ string find_in_path(const string &command, const vector<string> &paths)
 // Handlers for shell builtins
 void handle_echo(const string &input)
 {
-    cout << input.substr(5) << "\n";
+    string raw_args = input.substr(5);
+
+    stringstream ss(raw_args);
+    string arg;
+
+    while (ss >> arg)
+    {
+        cout << arg << " ";
+    }
+
+    cout << '\n';
 }
 
 // Handle type command
@@ -173,6 +183,7 @@ void handle_pwd()
     }
 }
 
+//Handle 
 
 
 int main()
