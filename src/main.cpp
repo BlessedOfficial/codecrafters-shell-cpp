@@ -29,9 +29,11 @@ vector<string> get_path_directories()
     return paths;
 }
 
-string get_home_env_var(){
+string get_home_env_var()
+{
     const char *home_env = getenv("HOME");
-    if(home_env != nullptr){
+    if (home_env != nullptr)
+    {
         return string(home_env);
     }
 
@@ -53,25 +55,68 @@ string find_in_path(const string &command, const vector<string> &paths)
 }
 
 // Handlers for shell builtins
-void handle_echo(const string &input)
+void handle_echo(const vector<string> &args)
 {
-    string raw_args = input.substr(5);
-
-    stringstream ss(raw_args);
-    string arg;
-
-    while (ss >> arg)
+    for (size_t i = 1; i < args.size(); ++i)
     {
-        cout << arg << " ";
+        cout << args[i];
+        if (i + 1 < args.size())
+        {
+            cout << " "; 
+        }
     }
-
     cout << '\n';
 }
 
-// Handle type command
-void handle_type(const string &input, const vector<string> &paths)
+// Handle single quotes
+vector<string> parse_input(const string &input)
 {
-    string command = input.substr(5);
+    vector<string> args;
+    string curr_string = "";
+    bool is_inside_single_quotes = false;
+    bool in_token = false;
+
+    for (char c : input)
+    {
+        if (c == '\'')
+        {
+            is_inside_single_quotes = !is_inside_single_quotes;
+            in_token = true;
+        }
+        else if (c == ' ' || c == '\t')
+        {
+            if (is_inside_single_quotes)
+            {
+                curr_string += c;
+            }
+            else if (in_token)
+            {
+                args.push_back(curr_string);
+                curr_string = "";
+                in_token = false;
+            }
+        }
+        else
+        {
+            curr_string += c;
+            in_token = true;
+        }
+    }
+
+    // Flush the remaining argument if the line ended inside a token
+    if (in_token)
+    {
+        args.push_back(curr_string);
+        in_token = false;
+    }
+
+    return args;
+}
+
+// Handle type command
+void handle_type(const vector<string> &args, const vector<string> &paths)
+{
+    string command = args[1];
 
     // O(1) lookup Optimisation
     if (BUILTINS.count(command))
@@ -93,34 +138,11 @@ void handle_type(const string &input, const vector<string> &paths)
 }
 
 // Handle externals
-void handle_externals(const string &input, const vector<string> &paths)
+void handle_externals(const vector<string> &args, const vector<string> &paths)
 {
-    // seperate by space
-    string command;
-    vector<string> args;
+    string command = args[0];
+    vector<string> cmd_args(args.begin() + 1, args.end());
 
-    size_t space_pos = input.find(' ');
-
-    if (space_pos != string::npos)
-    {
-        command = input.substr(0, space_pos);
-
-        // args into vector
-        string raw_args = input.substr(space_pos + 1);
-        stringstream ss(raw_args);
-        string arg;
-
-        while (ss >> arg)
-        {
-            args.push_back(arg);
-        }
-    }
-    else
-    {
-        command = input;
-    }
-
-    // Determine if command is executable
     string filepath = find_in_path(command, paths);
     if (filepath == "")
     {
@@ -128,44 +150,34 @@ void handle_externals(const string &input, const vector<string> &paths)
     }
     else
     {
-        // Create a C++ vector to store C-style char pointers
         vector<char *> argv;
 
-        // 1. argv[0] must be the path/command name
         argv.push_back(const_cast<char *>(command.c_str()));
 
-        // 2. argv[1..n] are the arguments
-        for (const string &arg : args)
+        for (const string &arg : cmd_args)
         {
             argv.push_back(const_cast<char *>(arg.c_str()));
         }
 
-        // 3. Must end with a NULL sentinel pointer
         argv.push_back(nullptr);
 
-        // Call fork
         pid_t pid = fork();
 
-        // Handle Errors
         if (pid < 0)
         {
             perror("fork failed!!");
             return;
         }
 
-        // Handle Child Process (pid == 0)
         if (pid == 0)
         {
             execv(filepath.c_str(), argv.data());
 
-            // This only executes if execv FAILED!!
             perror("execv failed");
             exit(EXIT_FAILURE);
         }
 
-        // 5. PARENT PROCESS (pid > 0)
         int status;
-        // waitpid pauses parent until child with this specific PID finishes
         if (waitpid(pid, &status, 0) == -1)
         {
             perror("waitpid failed");
@@ -183,8 +195,7 @@ void handle_pwd()
     }
 }
 
-//Handle 
-
+// Handle
 
 int main()
 {
@@ -201,45 +212,54 @@ int main()
             break;
         }
 
-        if (input == "exit")
+        vector<string> args = parse_input(input);
+
+        if (args.empty())
+        {
+            continue;
+        }
+
+        string command = args[0];
+
+        if (command == "exit")
         {
             break;
         }
-        else if (input == "pwd")
+        else if (command == "pwd")
         {
             handle_pwd();
             continue;
         }
-        else if (input.substr(0, 3) == "cd ")
+        else if (command == "cd")
         {
-            string path = input.substr(3);
+            string path = args.size() > 1 ? args[1] : get_home_env_var();
 
-            if(path =="~"){
+            if (path == "~")
+            {
                 path = get_home_env_var();
             }
 
             if (chdir(path.c_str()) != 0)
             {
-                cerr << "cd: " << path << ": No such file or directory" <<endl;
+                cerr << "cd: " << path << ": No such file or directory" << endl;
             }
 
             continue;
         }
 
-        // Fetch PATH per iteration (accounts for runtime updates)
         vector<string> paths = get_path_directories();
 
-        if (input.substr(0, 5) == "echo ")
+        if (command == "echo")
         {
-            handle_echo(input);
+            handle_echo(args);
         }
-        else if (input.substr(0, 5) == "type ")
+        else if (command == "type")
         {
-            handle_type(input, paths);
+            handle_type(args, paths);
         }
         else
         {
-            handle_externals(input, paths);
+            handle_externals(args, paths);
         }
     }
 
