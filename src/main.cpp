@@ -82,11 +82,65 @@ vector<string> parse_input(const string &input)
     {
         char c = input[i];
 
-        // Handle backslash outside quotes
-        if (c == '\\' &&
-            !is_inside_single_quotes &&
-            !is_inside_double_quotes)
+        // =========================================================
+        // BACKSLASH HANDLING
+        // =========================================================
+        if (c == '\\')
         {
+            // -----------------------------------------------------
+            // Backslash inside single quotes:
+            // It has no special meaning.
+            // -----------------------------------------------------
+            if (is_inside_single_quotes)
+            {
+                curr_string += c;
+                in_token = true;
+                continue;
+            }
+
+            // -----------------------------------------------------
+            // Backslash inside double quotes:
+            // It only escapes:
+            //     "
+            //     \
+            //     $
+            //     `
+            // -----------------------------------------------------
+            if (is_inside_double_quotes)
+            {
+                ++i;
+
+                if (i < input.length())
+                {
+                    char next = input[i];
+
+                    if (next == '"' ||
+                        next == '\\' ||
+                        next == '$' ||
+                        next == '`')
+                    {
+                        // Escaped special character:
+                        // remove the backslash
+                        curr_string += next;
+                    }
+                    else
+                    {
+                        // Backslash has no special meaning for
+                        // this character, so preserve it.
+                        curr_string += '\\';
+                        curr_string += next;
+                    }
+
+                    in_token = true;
+                }
+
+                continue;
+            }
+
+            // -----------------------------------------------------
+            // Backslash outside quotes:
+            // It escapes ANY character.
+            // -----------------------------------------------------
             ++i;
 
             if (i < input.length())
@@ -98,41 +152,32 @@ vector<string> parse_input(const string &input)
             continue;
         }
 
-        // Toggle double quotes
+        // =========================================================
+        // DOUBLE QUOTES
+        // =========================================================
         if (c == '"' && !is_inside_single_quotes)
         {
             is_inside_double_quotes = !is_inside_double_quotes;
             in_token = true;
+            continue;
         }
 
-        //Handle Backslash in double qoutes
-        else if( c == '\\' && is_inside_double_quotes ){
-            i++;
-            if(i < input.length()){
-            c = input[i];
-            if( (c == '\"' || c == '\\' || c == '\$' || c == '\`')){
-                curr_string += input[i];
-                //in_token already true
-            }else{
-                i--;
-                c = input[i];
-            }
-            }
-
-
-        }
-
-        // Toggle single quotes
-        else if (c == '\'' && !is_inside_double_quotes)
+        // =========================================================
+        // SINGLE QUOTES
+        // =========================================================
+        if (c == '\'' && !is_inside_double_quotes)
         {
             is_inside_single_quotes = !is_inside_single_quotes;
             in_token = true;
+            continue;
         }
 
-        // Handle spaces and tabs
-        else if ((c == ' ' || c == '\t') &&
-                 !is_inside_single_quotes &&
-                 !is_inside_double_quotes)
+        // =========================================================
+        // SPACES / TABS OUTSIDE QUOTES
+        // =========================================================
+        if ((c == ' ' || c == '\t') &&
+            !is_inside_single_quotes &&
+            !is_inside_double_quotes)
         {
             if (in_token)
             {
@@ -140,16 +185,20 @@ vector<string> parse_input(const string &input)
                 curr_string = "";
                 in_token = false;
             }
+
+            continue;
         }
 
-        // Normal character
-        else
-        {
-            curr_string += c;
-            in_token = true;
-        }
+        // =========================================================
+        // NORMAL CHARACTER
+        // =========================================================
+        curr_string += c;
+        in_token = true;
     }
 
+    // =============================================================
+    // PUSH FINAL TOKEN
+    // =============================================================
     if (in_token)
     {
         args.push_back(curr_string);
