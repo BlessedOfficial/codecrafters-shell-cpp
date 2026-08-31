@@ -12,15 +12,18 @@ flowchart LR
         Index[Notes/README.md]
         Fork[fork/README.md]
         Exec[exec/README.md]
+        FileDescriptors[file-descriptors/README.md]
     end
     Main[src/main.cpp]
     Index --> Fork
     Index --> Exec
+    Index --> FileDescriptors
     Fork -->|"fork / waitpid"| Main
     Exec -->|"execv / argv"| Main
+    FileDescriptors -->|"dup2 / redirect"| Main
 ```
 
-**Suggested reading order:** [fork](fork/README.md) → [exec](exec/README.md) (fork enables the shell to survive while the child calls exec).
+**Suggested reading order:** [fork](fork/README.md) → [exec](exec/README.md) → [file descriptors](file-descriptors/README.md) (fork keeps the shell alive; exec replaces the child; file descriptors are what the child inherits after redirection).
 
 ---
 
@@ -30,6 +33,7 @@ flowchart LR
 | :--- | :--- | :--- |
 | Process duplication | [fork/README.md](fork/README.md) | Why the shell calls `fork()` before `execv`, and how parent/child split control flow |
 | Executable replacement | [exec/README.md](exec/README.md) | How `execv` overwrites a process, argv rules, and the exec family |
+| File descriptors | [file-descriptors/README.md](file-descriptors/README.md) | stdin/stdout/stderr as FD 0/1/2, redirection (`>`, `2>`), `dup2`, and why the program does not need to know the target |
 
 ---
 
