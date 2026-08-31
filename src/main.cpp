@@ -22,7 +22,8 @@ int main()
             break;
         }
 
-        Command cmd = parse_input(input);
+        Command parsed = parse_input(input);
+        Command cmd = parse_command(parsed);
 
         if (cmd.args.empty())
         {
