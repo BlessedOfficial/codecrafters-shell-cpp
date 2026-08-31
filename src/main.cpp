@@ -73,34 +73,59 @@ vector<string> parse_input(const string &input)
 {
     vector<string> args;
     string curr_string = "";
+
     bool is_inside_single_quotes = false;
-    bool  is_inside_double_qoutes = false;
+    bool is_inside_double_quotes = false;
     bool in_token = false;
 
-    for (char c : input)
+    for (size_t i = 0; i < input.length(); ++i)
     {
-        if(c == '\"'){
-            is_inside_double_qoutes = !is_inside_double_qoutes;
+        char c = input[i];
+
+        // Handle backslash outside quotes
+        if (c == '\\' &&
+            !is_inside_single_quotes &&
+            !is_inside_double_quotes)
+        {
+            ++i;
+
+            if (i < input.length())
+            {
+                curr_string += input[i];
+                in_token = true;
+            }
+
+            continue;
+        }
+
+        // Toggle double quotes
+        if (c == '"' && !is_inside_single_quotes)
+        {
+            is_inside_double_quotes = !is_inside_double_quotes;
             in_token = true;
         }
-        else if (c == '\'' && !is_inside_double_qoutes)
+
+        // Toggle single quotes
+        else if (c == '\'' && !is_inside_double_quotes)
         {
             is_inside_single_quotes = !is_inside_single_quotes;
             in_token = true;
         }
-        else if (c == ' ' || c == '\t' )
+
+        // Handle spaces and tabs
+        else if ((c == ' ' || c == '\t') &&
+                 !is_inside_single_quotes &&
+                 !is_inside_double_quotes)
         {
-            if (is_inside_single_quotes || is_inside_double_qoutes)
-            {
-                curr_string += c;
-            }
-            else if (in_token)
+            if (in_token)
             {
                 args.push_back(curr_string);
                 curr_string = "";
                 in_token = false;
             }
         }
+
+        // Normal character
         else
         {
             curr_string += c;
@@ -108,11 +133,9 @@ vector<string> parse_input(const string &input)
         }
     }
 
-    // Flush the remaining argument if the line ended inside a token
     if (in_token)
     {
         args.push_back(curr_string);
-        in_token = false;
     }
 
     return args;
