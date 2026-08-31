@@ -68,24 +68,29 @@ void handle_echo(const vector<string> &args)
     cout << '\n';
 }
 
-// Handle single quotes
+
 vector<string> parse_input(const string &input)
 {
     vector<string> args;
     string curr_string = "";
     bool is_inside_single_quotes = false;
+    bool  is_inside_double_qoutes = false;
     bool in_token = false;
 
     for (char c : input)
     {
-        if (c == '\'')
+        if(c == '\"'){
+            is_inside_double_qoutes = !is_inside_double_qoutes;
+            in_token = true;
+        }
+        else if (c == '\'' && !is_inside_double_qoutes)
         {
             is_inside_single_quotes = !is_inside_single_quotes;
             in_token = true;
         }
-        else if (c == ' ' || c == '\t')
+        else if (c == ' ' || c == '\t' )
         {
-            if (is_inside_single_quotes)
+            if (is_inside_single_quotes || is_inside_double_qoutes)
             {
                 curr_string += c;
             }
