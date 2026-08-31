@@ -105,6 +105,23 @@ vector<string> parse_input(const string &input)
             in_token = true;
         }
 
+        //Handle Backslash in double qoutes
+        else if( c == '\\' && is_inside_double_quotes ){
+            i++;
+            if(i < input.length()){
+            c = input[i];
+            if( (c == '\"' || c == '\\' || c == '\$' || c == '\`')){
+                curr_string += input[i];
+                //in_token already true
+            }else{
+                i--;
+                c = input[i];
+            }
+            }
+
+
+        }
+
         // Toggle single quotes
         else if (c == '\'' && !is_inside_double_quotes)
         {
