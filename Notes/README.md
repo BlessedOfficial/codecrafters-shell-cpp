@@ -71,7 +71,7 @@ flowchart TD
 ### Prerequisites (WSL)
 
 ```bash
-cd /mnt/c/Dev/Projects/codecrafters-shell-cpp
+cd /mnt/c/Dev/Projects/cpp-shell
 ```
 
 - **cmake** and **vcpkg** with `VCPKG_ROOT` set

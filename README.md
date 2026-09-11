@@ -1,8 +1,8 @@
-# POSIX-style shell in C++
+# cpp-shell
 
-A Unix shell I built for the [CodeCrafters “Build Your Own Shell”](https://app.codecrafters.io/courses/shell/overview) challenge. It is a small REPL that tokenizes a line of input, runs builtins in-process, and launches external programs with `fork` / `execv` / `waitpid`.
+A POSIX-style Unix shell in C++. It is a small REPL that tokenizes a line of input, runs builtins in-process, and launches external programs with `fork` / `execv` / `waitpid`.
 
-The CodeCrafters starter README is gone on purpose: this repo is the implementation, plus notes I wrote while learning the syscalls behind it.
+Started as the [CodeCrafters “Build Your Own Shell”](https://app.codecrafters.io/courses/shell/overview) challenge; this repo is the implementation plus notes I wrote while learning the syscalls behind it.
 
 [![progress-banner](https://backend.codecrafters.io/progress/shell/a81fefe5-5fcb-46d8-92a8-6854e59a2bef)](https://app.codecrafters.io/users/BlessedOfficial?r=2qF)
 
@@ -22,7 +22,7 @@ hello world
 $ type echo
 echo is a shell builtin
 $ pwd
-/mnt/c/Dev/Projects/codecrafters-shell-cpp
+/mnt/c/Dev/Projects/cpp-shell
 $ ls > out.txt
 $ exit
 ```
