@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 using namespace std;
 
