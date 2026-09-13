@@ -146,6 +146,19 @@ Command parse_command(const Command &parsed)
 
     for (size_t i = 0; i < parsed.args.size(); ++i)
     {
+        //Check if err redirections
+        if(parsed.args[i] == "2>"){
+            if (i + 1 < parsed.args.size())
+            {
+                cmd.redirect_stderr = true;
+                cmd.stdout_file = parsed.args[i + 1];
+                ++i;
+            }
+            else
+            {
+                // error code
+            }
+        }
         // Check if redirection operator exists (>)
         if (parsed.args[i] == ">" || parsed.args[i] == "1>")
         {

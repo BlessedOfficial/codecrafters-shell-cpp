@@ -69,23 +69,76 @@ void handle_echo(const Command &cmd)
 
 void handle_type(const Command &cmd, const vector<string> &paths)
 {
-    string command = cmd.args[1];
+    if (cmd.args.size() < 2)
+        return;
 
-    // O(1) lookup Optimisation
-    if (BUILTINS.count(command))
+    if (cmd.redirect_stdout)
     {
-        cout << command << " is a shell builtin\n";
+        pid_t pid = fork();
+
+        if (pid < 0)
+        {
+            perror("fork failed");
+            return;
+        }
+
+        if (pid == 0) // CHILD PROCESS
+        {
+            int fd = open(cmd.stdout_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            if (fd < 0)
+            {
+                perror("open failed");
+                exit(EXIT_FAILURE);
+            }
+            dup2(fd, STDOUT_FILENO); // STDOUT_FILENO is 1
+            close(fd);
+            string command = cmd.args[1];
+
+            // O(1) lookup Optimisation
+            if (BUILTINS.count(command))
+            {
+                cout << command << " is a shell builtin\n";
+            }
+            else
+            {
+                string filepath = find_in_path(command, paths);
+                if (!filepath.empty())
+                {
+                    cout << command << " is " << filepath << "\n";
+                }
+                else
+                {
+                    cout << command << ": not found\n";
+                }
+            }
+            exit(EXIT_SUCCESS); // Terminate child execution cleanly
+        }
+        else // PARENT PROCESS
+        {
+            int status;
+            waitpid(pid, &status, 0); // Wait for child process to finish
+        }
     }
     else
     {
-        string filepath = find_in_path(command, paths);
-        if (!filepath.empty())
+        string command = cmd.args[1];
+
+        // O(1) lookup Optimisation
+        if (BUILTINS.count(command))
         {
-            cout << command << " is " << filepath << "\n";
+            cout << command << " is a shell builtin\n";
         }
         else
         {
-            cout << command << ": not found\n";
+            string filepath = find_in_path(command, paths);
+            if (!filepath.empty())
+            {
+                cout << command << " is " << filepath << "\n";
+            }
+            else
+            {
+                cout << command << ": not found\n";
+            }
         }
     }
 }
