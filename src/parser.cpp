@@ -150,7 +150,7 @@ Command parse_command(const Command &parsed)
         if(parsed.args[i] == "2>"){
             if (i + 1 < parsed.args.size())
             {
-                cmd.redirect_stderr = true;
+                cmd.has_redirect_stderr = true;
                 cmd.stdout_file = parsed.args[i + 1];
                 ++i;
             }
@@ -165,7 +165,7 @@ Command parse_command(const Command &parsed)
             // Verify filename exists
             if (i + 1 < parsed.args.size())
             {
-                cmd.redirect_stdout = true;
+                cmd.has_redirect_stdout = true;
                 cmd.stdout_file = parsed.args[i + 1];
                 ++i;
             }

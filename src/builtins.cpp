@@ -1,5 +1,6 @@
 #include "builtins.hpp"
 #include "env.hpp"
+#include "redirect.hpp"
 
 #include <iostream>
 #include <unordered_set>
@@ -13,7 +14,7 @@ const unordered_set<string> BUILTINS = {"echo", "exit", "type", "pwd", "cd"};
 
 void handle_echo(const Command &cmd)
 {
-    if (cmd.redirect_stdout)
+    if (cmd.has_redirect_stdout || cmd.has_redirect_stderr)
     {
         pid_t pid = fork();
 
@@ -25,45 +26,33 @@ void handle_echo(const Command &cmd)
 
         if (pid == 0) // CHILD PROCESS
         {
-            int fd = open(cmd.stdout_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-            if (fd < 0)
-            {
-                perror("open failed");
-                exit(EXIT_FAILURE);
-            }
-            dup2(fd, STDOUT_FILENO); // STDOUT_FILENO is 1
-            close(fd);
+            if (cmd.has_redirect_stdout)
+                redirect_stdout(cmd);
 
-            // Print arguments to redirected stdout
-            for (size_t i = 1; i < cmd.args.size(); ++i)
-            {
-                cout << cmd.args[i];
-                if (i + 1 < cmd.args.size())
-                {
-                    cout << " ";
-                }
-            }
-            cout << '\n';
-
-            exit(EXIT_SUCCESS); // Terminate child execution cleanly
+            if (cmd.has_redirect_stderr)
+                redirect_stderr(cmd);
         }
         else // PARENT PROCESS
         {
             int status;
             waitpid(pid, &status, 0); // Wait for child process to finish
+            return;
         }
     }
-    else // NORMAL ECHO
+
+    for (size_t i = 1; i < cmd.args.size(); ++i)
     {
-        for (size_t i = 1; i < cmd.args.size(); ++i)
+        cout << cmd.args[i];
+        if (i + 1 < cmd.args.size())
         {
-            cout << cmd.args[i];
-            if (i + 1 < cmd.args.size())
-            {
-                cout << " ";
-            }
+            cout << " ";
         }
-        cout << '\n'; // Added missing newline
+    }
+    cout << '\n'; // Added missing newline
+
+    if (cmd.has_redirect_stdout || cmd.has_redirect_stderr)
+    {
+        exit(EXIT_SUCCESS);
     }
 }
 
@@ -72,7 +61,9 @@ void handle_type(const Command &cmd, const vector<string> &paths)
     if (cmd.args.size() < 2)
         return;
 
-    if (cmd.redirect_stdout)
+
+
+    if (cmd.has_redirect_stdout || cmd.has_redirect_stderr)
     {
         pid_t pid = fork();
 
@@ -84,43 +75,20 @@ void handle_type(const Command &cmd, const vector<string> &paths)
 
         if (pid == 0) // CHILD PROCESS
         {
-            int fd = open(cmd.stdout_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-            if (fd < 0)
-            {
-                perror("open failed");
-                exit(EXIT_FAILURE);
+            if(cmd.has_redirect_stdout){
+                redirect_stdout(cmd);
+            }else{
+                redirect_stderr(cmd);
             }
-            dup2(fd, STDOUT_FILENO); // STDOUT_FILENO is 1
-            close(fd);
-            string command = cmd.args[1];
-
-            // O(1) lookup Optimisation
-            if (BUILTINS.count(command))
-            {
-                cout << command << " is a shell builtin\n";
-            }
-            else
-            {
-                string filepath = find_in_path(command, paths);
-                if (!filepath.empty())
-                {
-                    cout << command << " is " << filepath << "\n";
-                }
-                else
-                {
-                    cout << command << ": not found\n";
-                }
-            }
-            exit(EXIT_SUCCESS); // Terminate child execution cleanly
         }
         else // PARENT PROCESS
         {
             int status;
             waitpid(pid, &status, 0); // Wait for child process to finish
+            return;
         }
     }
-    else
-    {
+    
         string command = cmd.args[1];
 
         // O(1) lookup Optimisation
@@ -140,7 +108,9 @@ void handle_type(const Command &cmd, const vector<string> &paths)
                 cout << command << ": not found\n";
             }
         }
-    }
+        if(cmd.has_redirect_stderr||cmd.has_redirect_stdout){
+            exit(EXIT_SUCCESS);
+        }
 }
 
 void handle_pwd()

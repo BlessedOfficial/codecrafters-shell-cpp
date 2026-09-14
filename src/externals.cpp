@@ -43,7 +43,7 @@ void handle_externals(const Command &cmd, const vector<string> &paths)
         if (pid == 0)
         {
 
-            if(cmd.redirect_stdout){
+            if(cmd.has_redirect_stdout){
                 //Open the file
                 int fd = open(cmd.stdout_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
                 if(fd < 0){

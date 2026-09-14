@@ -7,6 +7,6 @@ struct Command
 {
     std::vector<std::string> args; // clean command and arguments
     std::string stdout_file = "";  // target file for redirection
-    bool redirect_stdout = false;  // flag indicating if redirection exists
-    bool redirect_stderr = false; //flag if error redirection 2>
+    bool has_redirect_stdout = false;  // flag indicating if redirection exists
+    bool has_redirect_stderr = false; //flag if error redirection 2>
 };
