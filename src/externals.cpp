@@ -64,7 +64,7 @@ void handle_externals(const Command &cmd, const vector<string> &paths)
                 }
                 else
                 {
-                    redirect_stdout(cmd);
+                    redirect_stderr(cmd);
                 }
             }
 

@@ -39,7 +39,7 @@ void handle_echo(const Command &cmd)
                 if(cmd.append){
                     redirect_stderr_append(cmd);
                 }else{
-                    redirect_stdout(cmd);
+                    redirect_stderr(cmd);
                 }
             }
                 
@@ -98,7 +98,7 @@ void handle_type(const Command &cmd, const vector<string> &paths)
                 if(cmd.append){
                     redirect_stderr_append(cmd);
                 }else{
-                    redirect_stdout(cmd);
+                    redirect_stderr(cmd);
                 }
             }
                 
