@@ -1,4 +1,5 @@
  #include "externals.hpp"
+ #include "redirect.hpp"
 #include "env.hpp"
 
 #include <cstdlib>
@@ -64,4 +65,5 @@ void handle_externals(const Command &cmd, const vector<string> &paths)
             perror("waitpid failed");
         }
     }
+}
 }
