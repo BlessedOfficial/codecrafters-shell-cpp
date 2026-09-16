@@ -74,10 +74,10 @@ void handle_type(const Command &cmd, const vector<string> &paths)
         if (pid == 0) // CHILD PROCESS
         {
             if (cmd.has_redirect_stdout)
-                cmd.redirect_stdout(cmd);
+                redirect_stdout(cmd);
 
             if (cmd.has_redirect_stderr)
-                cmd.redirect_stderr(cmd);
+                redirect_stderr(cmd);
         }
         else // PARENT PROCESS
         {
