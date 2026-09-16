@@ -1,5 +1,5 @@
- #include "externals.hpp"
- #include "redirect.hpp"
+#include "externals.hpp"
+#include "redirect.hpp"
 #include "env.hpp"
 
 #include <cstdlib>
@@ -44,26 +44,26 @@ void handle_externals(const Command &cmd, const vector<string> &paths)
         if (pid == 0)
         {
 
-            if(cmd.has_redirect_stdout){
-                //Open the file
+            
+                // Open the file
                 if (cmd.has_redirect_stdout)
-                redirect_stdout(cmd);
+                    redirect_stdout(cmd);
 
-            if (cmd.has_redirect_stderr)
-                redirect_stderr(cmd);
+                if (cmd.has_redirect_stderr)
+                    redirect_stderr(cmd);
+
+                execv(filepath.c_str(), argv.data());
+
+                perror("execv failed");
+                exit(EXIT_FAILURE);
 
             
-            execv(filepath.c_str(), argv.data());
-
-            perror("execv failed");
-            exit(EXIT_FAILURE);
-        }
-
-        int status;
-        if (waitpid(pid, &status, 0) == -1)
-        {
-            perror("waitpid failed");
+        }else{
+            int status;
+            if (waitpid(pid, &status, 0) == -1)
+            {
+                perror("waitpid failed");
+            }
         }
     }
-}
 }
