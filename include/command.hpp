@@ -10,4 +10,5 @@ struct Command
     std::string stderr_file = ""; // target file redirected errors
     bool has_redirect_stdout = false;  // flag indicating if redirection exists
     bool has_redirect_stderr = false; //flag if error redirection 2>
+    bool append = false;
 };

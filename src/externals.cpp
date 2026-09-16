@@ -44,21 +44,37 @@ void handle_externals(const Command &cmd, const vector<string> &paths)
         if (pid == 0)
         {
 
-            
-                // Open the file
-                if (cmd.has_redirect_stdout)
+            if (cmd.has_redirect_stdout)
+            {
+                if (cmd.append)
+                {
+                    redirect_stdout_append(cmd);
+                }
+                else
+                {
                     redirect_stdout(cmd);
+                }
+            }
 
-                if (cmd.has_redirect_stderr)
-                    redirect_stderr(cmd);
+            if (cmd.has_redirect_stderr)
+            {
+                if (cmd.append)
+                {
+                    redirect_stderr_append(cmd);
+                }
+                else
+                {
+                    redirect_stdout(cmd);
+                }
+            }
 
-                execv(filepath.c_str(), argv.data());
+            execv(filepath.c_str(), argv.data());
 
-                perror("execv failed");
-                exit(EXIT_FAILURE);
-
-            
-        }else{
+            perror("execv failed");
+            exit(EXIT_FAILURE);
+        }
+        else
+        {
             int status;
             if (waitpid(pid, &status, 0) == -1)
             {

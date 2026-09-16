@@ -159,7 +159,17 @@ Command parse_command(const Command &parsed)
             {
                 // error code
             }
-        }
+        }else if(parsed.args[i] == "2>>"){
+                cmd.has_redirect_stderr = true;
+                cmd.stderr_file = parsed.args[i + 1];
+                cmd.append = true;
+                ++i;
+                continue;
+            }
+            else
+            {
+                // error code
+            }
         // Check if redirection operator exists (>)
         if (parsed.args[i] == ">" || parsed.args[i] == "1>")
         {
@@ -168,6 +178,18 @@ Command parse_command(const Command &parsed)
             {
                 cmd.has_redirect_stdout  = true;
                 cmd.stdout_file = parsed.args[i + 1];
+                ++i;
+            }
+            else
+            {
+                // error code
+            }
+        }else if(parsed.args[i] == ">>" || parsed.args[i] == "1>>"){
+             if (i + 1 < parsed.args.size())
+            {
+                cmd.has_redirect_stdout  = true;
+                cmd.stdout_file = parsed.args[i + 1];
+                cmd.append = true;
                 ++i;
             }
             else
