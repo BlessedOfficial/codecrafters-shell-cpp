@@ -1,4 +1,4 @@
-#include "externals.hpp"
+ #include "externals.hpp"
 #include "env.hpp"
 
 #include <cstdlib>
@@ -45,20 +45,13 @@ void handle_externals(const Command &cmd, const vector<string> &paths)
 
             if(cmd.has_redirect_stdout){
                 //Open the file
-                int fd = open(cmd.stdout_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-                if(fd < 0){
-                    perror("open failed");
-                    exit(EXIT_FAILURE);
-                }
+                if (cmd.has_redirect_stdout)
+                redirect_stdout(cmd);
 
+            if (cmd.has_redirect_stderr)
+                redirect_stderr(cmd);
 
-                //Redirect Output 
-                dup2(fd, STDOUT_FILENO);
-
-                //Close the extra descriptor
-                close(fd);
-
-            }
+            
             execv(filepath.c_str(), argv.data());
 
             perror("execv failed");
