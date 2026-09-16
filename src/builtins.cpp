@@ -61,8 +61,6 @@ void handle_type(const Command &cmd, const vector<string> &paths)
     if (cmd.args.size() < 2)
         return;
 
-
-
     if (cmd.has_redirect_stdout || cmd.has_redirect_stderr)
     {
         pid_t pid = fork();
@@ -75,11 +73,11 @@ void handle_type(const Command &cmd, const vector<string> &paths)
 
         if (pid == 0) // CHILD PROCESS
         {
-            if(cmd.has_redirect_stdout){
-                redirect_stdout(cmd);
-            }else{
-                redirect_stderr(cmd);
-            }
+            if (cmd.has_redirect_stdout)
+                cmd.redirect_stdout(cmd);
+
+            if (cmd.has_redirect_stderr)
+                cmd.redirect_stderr(cmd);
         }
         else // PARENT PROCESS
         {
@@ -88,29 +86,30 @@ void handle_type(const Command &cmd, const vector<string> &paths)
             return;
         }
     }
-    
-        string command = cmd.args[1];
 
-        // O(1) lookup Optimisation
-        if (BUILTINS.count(command))
+    string command = cmd.args[1];
+
+    // O(1) lookup Optimisation
+    if (BUILTINS.count(command))
+    {
+        cout << command << " is a shell builtin\n";
+    }
+    else
+    {
+        string filepath = find_in_path(command, paths);
+        if (!filepath.empty())
         {
-            cout << command << " is a shell builtin\n";
+            cout << command << " is " << filepath << "\n";
         }
         else
         {
-            string filepath = find_in_path(command, paths);
-            if (!filepath.empty())
-            {
-                cout << command << " is " << filepath << "\n";
-            }
-            else
-            {
-                cout << command << ": not found\n";
-            }
+            cout << command << ": not found\n";
         }
-        if(cmd.has_redirect_stderr||cmd.has_redirect_stdout){
-            exit(EXIT_SUCCESS);
-        }
+    }
+    if (cmd.has_redirect_stderr || cmd.has_redirect_stdout)
+    {
+        exit(EXIT_SUCCESS);
+    }
 }
 
 void handle_pwd()
