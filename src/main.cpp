@@ -55,6 +55,7 @@ int main()
 
         Command parsed = parse_input(input);
         Command cmd = parse_command(parsed);
+        free(input);
 
         if (cmd.args.empty())
         {
@@ -93,8 +94,6 @@ int main()
             handle_externals(cmd, paths);
         }
     }
-
-    free(input);
 
     return 0;
 }
