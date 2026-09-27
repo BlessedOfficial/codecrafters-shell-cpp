@@ -4,17 +4,49 @@
 #include "parser.hpp"
 
 #include <iostream>
+#include <cstring>
 #include <readline/readline.h>
 
 using namespace std;
+
+char* generator(const char* text, int state) {
+    static int index;
+
+    if (state == 0) {
+        index = 0;
+    }
+
+    const char* commands[] = {"echo", "exit"};
+
+    while (index < std::size(commands)) {
+        const char* command = commands[index++];
+
+        if (std::string(command).starts_with(text)) {
+            return strdup(command);
+        }
+    }
+
+    return nullptr;
+};
+char** completer(const char*text, int start, int end){
+
+    return  rl_completion_matches(text, generator);
+};
+
+
+
+
 
 int main()
 {
     cout << unitbuf;
     cerr << unitbuf;
 
+    rl_attempted_completion_function = completer;
+
     while (true)
     {
+        
         char* input = readline("$ ");
         if (input == nullptr)
         {
