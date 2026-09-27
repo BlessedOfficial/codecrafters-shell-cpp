@@ -4,6 +4,7 @@
 #include "parser.hpp"
 
 #include <iostream>
+#include <readline/readline.h>
 
 using namespace std;
 
@@ -14,10 +15,8 @@ int main()
 
     while (true)
     {
-        cout << "$ ";
-
-        string input;
-        if (!getline(cin, input))
+        char* input = readline("$ ");
+        if (input == nullptr)
         {
             break;
         }
@@ -62,6 +61,8 @@ int main()
             handle_externals(cmd, paths);
         }
     }
+
+    free(input);
 
     return 0;
 }
